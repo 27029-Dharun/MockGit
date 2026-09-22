@@ -10,7 +10,7 @@ internal class Program
     {
         ConsoleView view = new ConsoleView();
         Notify notify = new Notify();
-        CoffeeMachineService machineService = new CoffeeMachineService(notify);
+        CoffeeMachineService machineService = new CoffeeMachineService(notify, machineAvailable: 3);
         CoffeeMachineController machineController = new CoffeeMachineController(view, machineService, notify);
 
         machineController.Run();
