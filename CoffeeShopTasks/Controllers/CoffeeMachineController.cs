@@ -32,13 +32,13 @@ internal class CoffeeMachineController
                     break;
 
                 case CoffeeMenu.Cappuccino:
-                    createdCoffee = new Coffee(1, "Espresso", TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+                    createdCoffee = new Coffee(1, "Cappuccino", TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(2));
                     break;
                 case CoffeeMenu.Latte:
-                    createdCoffee = new Coffee(1, "Espresso", TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+                    createdCoffee = new Coffee(1, "Latte", TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(2));
                     break;
                 case CoffeeMenu.Americano:
-                    createdCoffee = new Coffee(1, "Espresso", TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+                    createdCoffee = new Coffee(1, "Americano", TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(2));
                     break;
                 case CoffeeMenu.Exit:
                     return;
