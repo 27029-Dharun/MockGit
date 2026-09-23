@@ -1,67 +1,57 @@
-﻿using System.Collections.Concurrent;
-using CoffeeShop.Models;
+﻿using CoffeeShop.Models;
 
-namespace CoffeeShop.Repository
+namespace CoffeeShop.Repository;
+
+internal class Inventory
 {
-    internal class Inventory
+    private readonly List<InventoryItem> _inventory;
+
+    public Inventory()
     {
-        private readonly ConcurrentBag<InventoryItem> _inventory =
-        [
-            new InventoryItem(
-                IngredientType.CoffeeBeans,
-                0,
-                1000),
+        _inventory = JsonRepository.Load<InventoryItem>("inventory.json");
+    }
 
-            new InventoryItem(
-                IngredientType.Water,
-                5000,
-                10000),
+    public InventoryItem GetByName(IngredientType type)
+    {
+        return _inventory.FirstOrDefault(item => item.Ingredient == type) ?? throw new Exception();
+    }
 
-            new InventoryItem(
-                IngredientType.Milk,
-                2000,
-                5000),
+    public bool HasIngredient(IngredientType ingredient, int quantity)
+    {
+        InventoryItem item = GetByName(ingredient);
 
-            new InventoryItem(
-                IngredientType.Sugar,
-                1000,
-                2000)
-        ];
-
-        public InventoryItem GetByName(IngredientType type)
+        lock(_inventory)
         {
-            return _inventory.FirstOrDefault(item => item.Ingredient == type) ?? throw new Exception();
-        }
-
-        public InventoryItem? HasIngredient(IngredientType ingredient, int quantity)
-        {
-            InventoryItem item = GetByName(ingredient);
             if (item.Quantity < quantity)
             {
-                return item;
-            }
-
-            return null;
-        }
-
-        public void DecrementStock(IngredientType ingredient, int quantity)
-        {
-            InventoryItem item = GetByName(ingredient);
-
-            lock(_inventory)
-            {
-                item.Quantity -= quantity;
+                return false;
             }
         }
 
-        internal void RefillStocks()
+        return true;
+    }
+
+    public void DecrementStock(IngredientType ingredient, int quantity)
+    {
+        InventoryItem item = GetByName(ingredient);
+
+        lock (_inventory)
         {
-            foreach (InventoryItem ingredient in _inventory)
+            item.Quantity -= quantity;
+
+            JsonRepository.Save("inventory.json", _inventory);
+        }
+    }
+
+    internal void RefillStocks()
+    {
+        foreach (InventoryItem ingredient in _inventory)
+        {
+            lock (_inventory)
             {
-                lock(_inventory)
-                {
-                    ingredient.Quantity = ingredient.MaximumQuantity;
-                }
+                ingredient.Quantity = ingredient.MaximumQuantity;
+
+                JsonRepository.Save("inventory.json", _inventory);
             }
         }
     }

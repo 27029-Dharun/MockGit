@@ -26,12 +26,11 @@ internal class InventoryService
         RefillInventory();
     }
 
-    internal async Task<Order> ProcessInventory(CoffeeMenu menu, int userId)
+    internal Order ProcessInventory(CoffeeMenu menu, int userId)
     {
         Coffee coffee = _coffeeRepository.GetByName(menu);
 
-        InventoryItem? ingredient = this.HasRequiredIngredients(coffee);
-        if (ingredient is not null)
+        if (!this.HasRequiredIngredients(coffee))
         {
             throw new Exception("Insufficient stock");
         }
@@ -50,23 +49,23 @@ internal class InventoryService
         return true;
     }
 
-    public InventoryItem? HasRequiredIngredients(Coffee coffee)
+    public bool HasRequiredIngredients(Coffee coffee)
     {
         foreach (var item in coffee.Ingredients)
         {
-            InventoryItem? ingredient = this._inventory.HasIngredient(item.Ingredient, item.Quantity);
-            if (ingredient is not null)
+            bool ingredient = this._inventory.HasIngredient(item.Ingredient, item.Quantity);
+            if (!ingredient)
             {
-                return ingredient;
+                return false;
             }
         }
 
-        return null;
+        return true;
     }
 
     internal void RefillInventory()
     {
-        System.Timers.Timer timer = new(TimeSpan.FromSeconds(10));
+        System.Timers.Timer timer = new(TimeSpan.FromSeconds(100));
         timer.AutoReset = true;
         timer.Elapsed += Restock;
 

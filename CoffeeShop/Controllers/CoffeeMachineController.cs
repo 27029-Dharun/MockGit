@@ -21,7 +21,7 @@ internal class CoffeeMachineController
     }
     private int currentUserId { get; set; }
 
-    public async Task Run()
+    public void Run()
     {
         while (currentUserId > 0)
         {
@@ -35,7 +35,7 @@ internal class CoffeeMachineController
                     continue;
                 }
 
-                await InitiateOrder(menu, currentUserId);
+                InitiateOrder(menu, currentUserId);
             }
             catch (Exception ex)
             {
@@ -50,10 +50,9 @@ internal class CoffeeMachineController
         currentUserId = userId;
     }
 
-
-    private async Task InitiateOrder(CoffeeMenu menu, int userId)
+    private void InitiateOrder(CoffeeMenu menu, int userId)
     {
-        Order order = await _orderService.ProcessInventory(menu, userId);
+        Order order = _orderService.ProcessInventory(menu, userId);
 
         _ = _coffeeMachineService.SubmitOrder(order);
     }

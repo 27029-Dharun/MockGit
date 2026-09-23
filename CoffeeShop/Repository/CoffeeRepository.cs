@@ -9,7 +9,6 @@ internal class CoffeeRepository
     public CoffeeRepository()
     {
         _coffee = LoadCoffee();
-
     }
 
     private List<Coffee> LoadCoffee()
@@ -45,6 +44,7 @@ internal class CoffeeRepository
 
     public Coffee GetByName(CoffeeMenu coffeeName)
     {
-        return _coffee.FirstOrDefault(coffee => coffee.Name == coffeeName) ?? throw new Exception();
+        return _coffee.FirstOrDefault(coffee => coffee.Name == coffeeName)
+            ?? throw new KeyNotFoundException("Coffee not found");
     }
 }

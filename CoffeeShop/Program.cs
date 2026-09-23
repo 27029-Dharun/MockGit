@@ -7,7 +7,7 @@ namespace CoffeeShop;
 
 internal class Program
 {
-    private static async Task Main()
+    private static void Main()
     {
         ConsoleView view = new();
         NotificationService notificationService = new();
@@ -21,6 +21,6 @@ internal class Program
         UserService service = new UserService(repository);
         UserController controller = new UserController(service, view, machineController);
 
-        await controller.Authenticate();
+        controller.Authenticate();
     }
 }

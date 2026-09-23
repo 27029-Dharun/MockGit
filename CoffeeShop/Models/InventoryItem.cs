@@ -1,18 +1,17 @@
-﻿namespace CoffeeShop.Models
+﻿namespace CoffeeShop.Models;
+
+internal class InventoryItem
 {
-    internal class InventoryItem
+    public InventoryItem(IngredientType ingredient, int quantity, int maximumQuantity)
     {
-        public InventoryItem(IngredientType coffeeBeans, int quantity, int maxQuantity)
-        {
-            Ingredient = coffeeBeans;
-            Quantity = quantity;
-            MaximumQuantity = maxQuantity;
-        }
-
-        public IngredientType Ingredient { get; }
-
-        public int Quantity { get; set; }
-
-        public int MaximumQuantity { get; }
+        Ingredient = ingredient;
+        Quantity = quantity;
+        MaximumQuantity = maximumQuantity;
     }
+
+    public IngredientType Ingredient { get; set; }
+
+    public int Quantity { get; set; }
+
+    public int MaximumQuantity { get; set; }
 }

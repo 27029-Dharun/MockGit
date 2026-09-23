@@ -26,7 +26,7 @@ namespace CoffeeShop.Controllers
             return userId;
         }
 
-        internal async Task Authenticate()
+        internal void Authenticate()
         {
             while (true)
             {
@@ -41,7 +41,7 @@ namespace CoffeeShop.Controllers
                 if (userId > 0)
                 {
                     this._coffeeMachineController.SetUserId(userId);
-                    await this._coffeeMachineController.Run();
+                    this._coffeeMachineController.Run();
                 }
             }
         }
