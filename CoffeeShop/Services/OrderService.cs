@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using CoffeeShop.Models;
+using CoffeeShop.Repository;
 
 namespace CoffeeShop.Services;
 
@@ -8,16 +9,18 @@ internal class OrderService
     private readonly NotificationService? _notificationService;
     private int _availableMachineCount;
     private ConcurrentQueue<Order> _orderQueue = new();
+    private readonly Logger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InventoryService"/> class.
     /// </summary>
     /// <param name="notifier">notifier</param>
     /// <param name="machineAvailable">Machine count</param>
-    public OrderService(NotificationService? notifier, int machineAvailable)
+    public OrderService(NotificationService? notifier, int machineAvailable, Logger logger)
     {
         _notificationService = notifier;
         _availableMachineCount = machineAvailable;
+        _logger = logger;
     }
 
     public async Task SubmitOrder(Order order)
@@ -33,7 +36,9 @@ internal class OrderService
         _orderQueue.Enqueue(order);
 
         _notificationService?.Execute($"{order.Coffee.Name} added to queue", order.UserId);
+        _logger.LogText($"{order.Coffee.Name} added to queue {order.UserId}");
     }
+
 
     /// <summary>
     /// orders the coffee
@@ -43,9 +48,11 @@ internal class OrderService
     internal async Task ProcessOrder(Order order)
     {
         _notificationService?.Execute($"Started preparing {order.Coffee.Name} for User id: {order.UserId}", order.UserId);
+        _logger.LogText($"{order.Coffee.Name} added to queue {order.UserId}");
 
         await Task.Delay(order.Coffee.PreparationTime);
         _notificationService?.Execute($"{order.Coffee.Name} was ready", order.UserId);
+        //_logger.LogText($"{order.Coffee.Name} was ready {order.UserId}");
 
         Interlocked.Increment(ref _availableMachineCount);
         await ProcessNextOrder();
