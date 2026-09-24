@@ -1,4 +1,6 @@
-﻿namespace CoffeeShop.Models;
+﻿using CoffeeShop.Models.Enums;
+
+namespace CoffeeShop.Models;
 
 internal class Coffee
 {

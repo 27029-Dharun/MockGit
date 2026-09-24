@@ -1,5 +1,6 @@
 ﻿using System.Timers;
 using CoffeeShop.Models;
+using CoffeeShop.Models.Enums;
 using CoffeeShop.Repository;
 
 namespace CoffeeShop.Services;
@@ -30,12 +31,11 @@ internal class InventoryService
     {
         Coffee coffee = _coffeeRepository.GetByName(menu);
 
-        if (!this.HasRequiredIngredients(coffee))
+        if(!this.DecrementIngredients(coffee))
         {
-            throw new Exception("Insufficient stock");
+            throw new InvalidOperationException("Out of Stock - Please try again");
         }
 
-        this.DecrementIngredients(coffee);
         return new(Guid.NewGuid(), coffee, userId);
     }
 
@@ -43,24 +43,19 @@ internal class InventoryService
     {
         foreach (var item in coffee.Ingredients)
         {
-            this._inventory.DecrementStock(item.Ingredient, item.Quantity);
-        }
-
-        return true;
-    }
-
-    public bool HasRequiredIngredients(Coffee coffee)
-    {
-        foreach (var item in coffee.Ingredients)
-        {
-            bool ingredient = this._inventory.HasIngredient(item.Ingredient, item.Quantity);
-            if (!ingredient)
+            if (!_inventory.HasIngredient(item.Ingredient, item.Quantity))
             {
                 return false;
             }
         }
 
+        foreach (var item in coffee.Ingredients)
+        {
+            _inventory.DecrementStock(item.Ingredient, item.Quantity);
+        }
+
         return true;
+
     }
 
     internal void RefillInventory()

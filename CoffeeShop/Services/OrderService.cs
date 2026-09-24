@@ -36,7 +36,7 @@ internal class OrderService
         _orderQueue.Enqueue(order);
 
         _notificationService?.Execute($"{order.Coffee.Name} added to queue", order.UserId);
-        _logger.LogText($"{order.Coffee.Name} added to queue {order.UserId}");
+        _logger.LogText($"{order.Coffee.Name} added to queue {order.UserId}\n");
     }
 
 
@@ -48,11 +48,11 @@ internal class OrderService
     internal async Task ProcessOrder(Order order)
     {
         _notificationService?.Execute($"Started preparing {order.Coffee.Name} for User id: {order.UserId}", order.UserId);
-        _logger.LogText($"{order.Coffee.Name} added to queue {order.UserId}");
+        _logger.LogText($"Started preparing {order.Coffee.Name} for User id: {order.UserId}\n");
 
         await Task.Delay(order.Coffee.PreparationTime);
         _notificationService?.Execute($"{order.Coffee.Name} was ready", order.UserId);
-        //_logger.LogText($"{order.Coffee.Name} was ready {order.UserId}");
+        _logger.LogText($"{order.Coffee.Name} was ready {order.UserId}\n");
 
         Interlocked.Increment(ref _availableMachineCount);
         await ProcessNextOrder();

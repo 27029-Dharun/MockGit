@@ -1,10 +1,12 @@
 ﻿using CoffeeShop.Models;
+using CoffeeShop.Models.Enums;
 
 namespace CoffeeShop.Repository;
 
 internal class Inventory
 {
     private readonly List<InventoryItem> _inventory;
+    private readonly object _lock = new();
 
     public Inventory()
     {
@@ -18,41 +20,39 @@ internal class Inventory
 
     public bool HasIngredient(IngredientType ingredient, int quantity)
     {
-        InventoryItem item = GetByName(ingredient);
-
-        lock(_inventory)
+        lock (_lock)
         {
-            if (item.Quantity < quantity)
-            {
-                return false;
-            }
+            InventoryItem item = GetByName(ingredient);
+            return item.Quantity >= quantity;
         }
-
-        return true;
     }
 
     public void DecrementStock(IngredientType ingredient, int quantity)
     {
-        InventoryItem item = GetByName(ingredient);
-
-        lock (_inventory)
+        lock (_lock)
         {
-            item.Quantity -= quantity;
+            InventoryItem item = GetByName(ingredient);
 
+            if (item.Quantity < quantity)
+            {
+                throw new InvalidOperationException($"Insufficient stock for {ingredient}. Requested: {quantity}, Available: {item.Quantity}.");
+            }
+
+            item.Quantity -= quantity;
             JsonRepository.Save("inventory.json", _inventory);
         }
     }
 
     internal void RefillStocks()
     {
-        foreach (InventoryItem ingredient in _inventory)
+        lock (_lock)
         {
-            lock (_inventory)
+            foreach (InventoryItem ingredient in _inventory)
             {
                 ingredient.Quantity = ingredient.MaximumQuantity;
-
-                JsonRepository.Save("inventory.json", _inventory);
             }
+
+            JsonRepository.Save("inventory.json", _inventory);
         }
     }
 }

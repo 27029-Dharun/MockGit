@@ -1,4 +1,5 @@
 ﻿using CoffeeShop.Models;
+using CoffeeShop.Models.Enums;
 using CoffeeShop.Services;
 using CoffeeShop.Views;
 
@@ -50,11 +51,11 @@ internal class CoffeeMachineController
         currentUserId = userId;
     }
 
-    private void InitiateOrder(CoffeeMenu menu, int userId)
+    private async Task InitiateOrder(CoffeeMenu menu, int userId)
     {
         Order order = _orderService.ProcessInventory(menu, userId);
 
-        _ = _coffeeMachineService.SubmitOrder(order);
+        await _coffeeMachineService.SubmitOrder(order);
     }
 
     private void NotifyUser(string message, int userId)

@@ -1,4 +1,5 @@
 ﻿using CoffeeShop.Models;
+using CoffeeShop.Models.Enums;
 
 namespace CoffeeShop.Repository;
 

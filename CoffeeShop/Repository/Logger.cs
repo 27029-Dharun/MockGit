@@ -17,7 +17,9 @@ internal class Logger
 
     public void LogText(string log)
     {
-        File.AppendAllText(_path, log);
-
+        lock (lockObject)
+        {
+            File.AppendAllText(_path, log);
+        }
     }
 }
