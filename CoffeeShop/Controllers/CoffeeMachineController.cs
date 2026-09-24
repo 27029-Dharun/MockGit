@@ -1,4 +1,5 @@
 ﻿using CoffeeShop.Models;
+using CoffeeShop.Repository;
 using CoffeeShop.Services;
 using CoffeeShop.Views;
 
@@ -10,15 +11,19 @@ internal class CoffeeMachineController
     private readonly InventoryService _orderService;
     private readonly OrderService _coffeeMachineService;
     private readonly NotificationService _notify;
+    private readonly Logger _logger;
 
-    public CoffeeMachineController(ConsoleView view, InventoryService machineService, NotificationService notifier, OrderService coffeeMachineService)
+    public CoffeeMachineController(ConsoleView view, InventoryService machineService, NotificationService notifier, OrderService coffeeMachineService, Logger logger)
     {
         _view = view;
         _orderService = machineService;
         _coffeeMachineService = coffeeMachineService;
         _notify = notifier;
+        _logger = logger;
         _notify.DisplayNotification += this.NotifyUser;
+        _notify.DisplayNotification += this.LogEvents;
     }
+
     private int currentUserId { get; set; }
 
     public void Run()
@@ -35,7 +40,7 @@ internal class CoffeeMachineController
                     continue;
                 }
 
-                _ = InitiateOrderAsync(menu, currentUserId);
+                InitiateOrder(menu, currentUserId);
             }
             catch (Exception ex)
             {
@@ -50,24 +55,11 @@ internal class CoffeeMachineController
         currentUserId = userId;
     }
 
-    private async Task InitiateOrder(CoffeeMenu menu, int userId)
+    private void InitiateOrder(CoffeeMenu menu, int userId)
     {
         Order order = _orderService.ProcessInventory(menu, userId);
 
-        await _coffeeMachineService.SubmitOrder(order);
-    }
-
-    public async Task InitiateOrderAsync(CoffeeMenu menu, int userId)
-    {
-        try
-        {
-            await this.InitiateOrder(menu, userId);
-        }
-        catch (Exception ex)
-        {
-            // Handle the exception, e.g., log it
-            Console.WriteLine($"Order failed: {ex.Message}");
-        }
+        _coffeeMachineService.SubmitOrder(order);
     }
 
     private void NotifyUser(string message, int userId)
@@ -76,5 +68,10 @@ internal class CoffeeMachineController
         {
             this._view.PrintSuccess(message);
         }
+    }
+
+    private void LogEvents(string message, int userId)
+    {
+        _logger.LogText($"{message} for user: {userId}\n");
     }
 }

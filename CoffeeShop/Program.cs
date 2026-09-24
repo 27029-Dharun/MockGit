@@ -16,10 +16,12 @@ internal class Program
         ConsoleView view = new();
         CoffeeRepository coffeeRepository = new CoffeeRepository();
         Inventory inventory = new Inventory();
+        MachineRepository machineRepository = new MachineRepository();
+        MachineService machineService = new MachineService(machineRepository);
 
-        OrderService coffeeMachineService = new OrderService(notificationService, 3, logger);
-        InventoryService machineService = new(coffeeRepository, inventory, notificationService);
-        CoffeeMachineController machineController = new(view, machineService, notificationService, coffeeMachineService);
+        OrderService coffeeMachineService = new OrderService(notificationService, machineService);
+        InventoryService inventoryService = new(coffeeRepository, inventory, notificationService);
+        CoffeeMachineController machineController = new(view, inventoryService, notificationService, coffeeMachineService, logger);
 
         UserRepository repository = new UserRepository();
         UserService service = new UserService(repository);

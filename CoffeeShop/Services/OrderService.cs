@@ -1,76 +1,76 @@
 ﻿using System.Collections.Concurrent;
 using CoffeeShop.Models;
-using CoffeeShop.Repository;
 
 namespace CoffeeShop.Services;
 
 internal class OrderService
 {
     private readonly NotificationService? _notificationService;
-    private int _availableMachineCount;
+    private readonly MachineService _machineService;
     private ConcurrentQueue<Order> _orderQueue = new();
-    private readonly Logger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InventoryService"/> class.
     /// </summary>
     /// <param name="notifier">notifier</param>
-    /// <param name="machineAvailable">Machine count</param>
-    public OrderService(NotificationService? notifier, int machineAvailable, Logger logger)
+    /// <param name="machineService">Machine count</param>
+    public OrderService(NotificationService? notifier, MachineService machineService)
     {
         _notificationService = notifier;
-        _availableMachineCount = machineAvailable;
-        _logger = logger;
+        _machineService = machineService;
     }
 
-    public async Task SubmitOrder(Order order)
+    public void SubmitOrder(Order order)
     {
-        if (_availableMachineCount > 0)
-        {
-            Interlocked.Decrement(ref _availableMachineCount);
+        CoffeeMachine? machine = this._machineService.AssignOrder(order);
 
-            await ProcessOrder(order);
+        if (machine is null)
+        {
+            _orderQueue.Enqueue(order);
+
+            _notificationService?.Execute($"{order.Coffee.Name} added to queue", order.UserId);
             return;
         }
 
-        _orderQueue.Enqueue(order);
-
-        _notificationService?.Execute($"{order.Coffee.Name} added to queue", order.UserId);
-        _logger.LogText($"{order.Coffee.Name} added to queue {order.UserId}\n");
+        Task.Run(() => ProcessOrder(order, machine));
     }
 
-
-    /// <summary>
-    /// orders the coffee
-    /// </summary>
-    /// <param name="order">A coffee type to place an order.</param>
-    /// <returns>A asynchronous task</returns>
-    internal async Task ProcessOrder(Order order)
+    public async Task ProcessOrder(Order order, CoffeeMachine machine)
     {
-        _notificationService?.Execute($"Started preparing {order.Coffee.Name} for User id: {order.UserId}", order.UserId);
-        _logger.LogText($"Started preparing {order.Coffee.Name} for User id: {order.UserId}\n");
-
+        _notificationService?.Execute($"{order.Coffee.Name} started preparing", order.UserId);
         await Task.Delay(order.Coffee.PreparationTime);
-        _notificationService?.Execute($"{order.Coffee.Name} was ready", order.UserId);
-        _logger.LogText($"{order.Coffee.Name} was ready {order.UserId}\n");
 
-        Interlocked.Increment(ref _availableMachineCount);
-        await ProcessNextOrder();
+        _notificationService?.Execute($"{order.Coffee.Name} ready", order.UserId);
+
+        this._machineService.ReleaseOrder(machine);
+
+        ProcessNextOrder();
     }
 
-    private async Task ProcessNextOrder()
+    private void ProcessNextOrder()
     {
-        if(!_orderQueue.Any())
+        Order? order = GetNextOrder();
+        if(order is null)
         {
             return;
         }
 
-        Order? nextOrder;
-        while (!_orderQueue.TryDequeue(out nextOrder))
+        CoffeeMachine? machine = this._machineService.AssignOrder(order);
+        if(machine is null)
         {
+            return;
         }
 
-        Interlocked.Decrement(ref _availableMachineCount);
-        await ProcessOrder(nextOrder);
+        Task.Run(() => ProcessOrder(order, machine));
+    }
+
+    private Order? GetNextOrder()
+    {
+        if (_orderQueue.TryDequeue(out Order? order))
+        {
+            return order;
+        }
+
+        return null;
     }
 }

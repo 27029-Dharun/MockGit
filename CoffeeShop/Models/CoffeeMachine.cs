@@ -2,6 +2,11 @@
 {
     internal class CoffeeMachine
     {
+        public CoffeeMachine(int id)
+        {
+            Id = id;
+        }
+
         public int Id { get; set; }
 
         public bool IsBusy { get; set; }
@@ -10,17 +15,19 @@
 
         public bool TryAssign(Order order)
         {
-            if(Order is null)
+            if(IsBusy)
             {
                 return false;
             }
 
+            IsBusy = true;
             Order = order;
             return true;
         }
 
         public void Release()
         {
+            IsBusy = false;
             Order = null;
         }
     }

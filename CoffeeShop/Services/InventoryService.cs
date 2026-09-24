@@ -60,7 +60,6 @@ internal class InventoryService
     internal void RefillInventory()
     {
         System.Timers.Timer timer = new(TimeSpan.FromSeconds(100));
-        timer.AutoReset = true;
         timer.Elapsed += Restock;
 
         timer.Start();
