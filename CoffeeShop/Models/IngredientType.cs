@@ -1,4 +1,4 @@
-﻿namespace CoffeeShop.Models.Enums;
+﻿namespace CoffeeShop.Models;
 
 public enum IngredientType
 {

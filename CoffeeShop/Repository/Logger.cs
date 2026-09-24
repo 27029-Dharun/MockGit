@@ -3,7 +3,7 @@
 internal class Logger
 {
     private readonly string _path;
-    private object lockObject = new object();
+    //private object lockObject = new object();
 
     public Logger(string path)
     {
@@ -17,7 +17,6 @@ internal class Logger
 
     public void LogText(string log)
     {
-        lock (lockObject)
         {
             File.AppendAllText(_path, log);
         }

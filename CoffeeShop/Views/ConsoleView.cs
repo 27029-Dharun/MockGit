@@ -1,4 +1,4 @@
-﻿using CoffeeShop.Models.Enums;
+﻿using CoffeeShop.Models;
 using CoffeeShop.Validators;
 
 namespace CoffeeShop.Views;

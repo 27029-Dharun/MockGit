@@ -1,6 +1,5 @@
 ﻿using System.Timers;
 using CoffeeShop.Models;
-using CoffeeShop.Models.Enums;
 using CoffeeShop.Repository;
 
 namespace CoffeeShop.Services;
@@ -66,7 +65,7 @@ internal class InventoryService
 
         timer.Start();
     }
-
+    
     private void Restock(object? sender, ElapsedEventArgs e)
     {
         this._inventory.RefillStocks();

@@ -1,5 +1,4 @@
 ﻿using CoffeeShop.Models;
-using CoffeeShop.Models.Enums;
 using CoffeeShop.Services;
 using CoffeeShop.Views;
 
@@ -36,7 +35,7 @@ internal class CoffeeMachineController
                     continue;
                 }
 
-                InitiateOrder(menu, currentUserId);
+                _ = InitiateOrderAsync(menu, currentUserId);
             }
             catch (Exception ex)
             {
@@ -56,6 +55,19 @@ internal class CoffeeMachineController
         Order order = _orderService.ProcessInventory(menu, userId);
 
         await _coffeeMachineService.SubmitOrder(order);
+    }
+
+    public async Task InitiateOrderAsync(CoffeeMenu menu, int userId)
+    {
+        try
+        {
+            await this.InitiateOrder(menu, userId);
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception, e.g., log it
+            Console.WriteLine($"Order failed: {ex.Message}");
+        }
     }
 
     private void NotifyUser(string message, int userId)

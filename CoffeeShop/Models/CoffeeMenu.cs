@@ -1,6 +1,6 @@
-﻿namespace CoffeeShop.Models.Enums;
+﻿namespace CoffeeShop.Models;
 
-internal enum CoffeeType
+public enum CoffeeMenu
 {
     Espresso = 1,
 
@@ -9,4 +9,6 @@ internal enum CoffeeType
     Latte = 3,
 
     Americano = 4,
+
+    LogOut = 5,
 }
